@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:jessie AS BuildEnv
 
 RUN apt-get update -y
 
@@ -27,7 +27,7 @@ WORKDIR /chromium
 RUN fetch --nohooks chromium
 
 # Take commit from https://omahaproxy.appspot.com/
-ARG VERSION=f5a1ee45b812b96c33344099823899840b77b2e0
+ARG VERSION=76.0.3809.100
 
 WORKDIR /chromium/src
 RUN git checkout $VERSION
@@ -48,3 +48,9 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin
 RUN autoninja -C out/Default chrome
 WORKDIR /chromium/src/out
 RUN mv Default chrome-linux && zip -r /chrome-linux-${VERSION}.zip chrome-linux
+
+FROM scratch AS chromium
+
+ARG VERSION=76.0.3809.100
+
+COPY --from=BuildEnv /chrome-linux-${VERSION}.zip /chrome-linux-${VERSION}
