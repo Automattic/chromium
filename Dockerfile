@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:experimental
 FROM debian:jessie AS BuildEnv
 
 RUN apt-get update -y
@@ -31,25 +32,30 @@ ARG VERSION=76.0.3809.100
 
 WORKDIR /chromium/src
 RUN git checkout $VERSION
+COPY build-args.gn /build-args.gn
 
 # The following is separate run statements to take advantage of caching when single lines need to change during debugging
 RUN ./build/install-build-deps.sh --no-arm --no-prompt --no-syms --no-chromeos-fonts
-RUN gclient sync --with_branch_heads
-RUN gclient runhooks
-RUN gn gen out/Default
-COPY build-args.gn /chromium/src/out/Default/args.gn
-RUN gn gen out/Default
+
 RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
 RUN apt-get -o Acquire::Check-Valid-Until=false -y update && \
     apt-get install -o Acquire::Check-Valid-Until=false -y -t jessie-backports ca-certificates-java openjdk-8-jdk && \
     rm -rf /usr/bin/java && \
     ln -s /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java /usr/bin/java
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin
-RUN autoninja -C out/Default chrome
-WORKDIR /chromium/src/out
-RUN mv Default chrome-linux && zip -r /chrome-linux-${VERSION}.zip chrome-linux
 
-FROM ubuntu:latest AS chromium
+RUN gclient sync --with_branch_heads
+RUN gclient runhooks
+RUN --mount=type=tmpfs,target=/chromium/src/out/Default \
+    gn gen out/Release && \
+    cp /build-args.gn /chromium/src/out/Release/args.gn && \
+    gn gen out/Release && \
+    autoninja -C out/Release chrome && \
+    autoninja -C out/Release -t clean && \
+    cd /chromium/src/out && \
+    cp -r Release chrome-linux && zip -r /chrome-linux-${VERSION}.zip chrome-linux
+
+FROM scratch AS chromium
 
 ARG VERSION=76.0.3809.100
 

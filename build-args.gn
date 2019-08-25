@@ -3,3 +3,5 @@ use_jumbo_build=true
 enable_nacl=false
 symbol_level=0
 blink_symbol_level=0
+is_debug=false
+is_component_build=false
