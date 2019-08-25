@@ -51,9 +51,10 @@ RUN --mount=type=tmpfs,target=/chromium/src/out/Default \
     cp /build-args.gn /chromium/src/out/Release/args.gn && \
     gn gen out/Release && \
     autoninja -C out/Release chrome && \
-    autoninja -C out/Release -t clean && \
-    cd /chromium/src/out && \
-    cp -r Release chrome-linux && zip -r /chrome-linux-${VERSION}.zip chrome-linux
+    python tools/mb/mb.py isolate out/Release chrome && \
+    python tools/swarming_client/isolate.py remap -s out/Release/chrome.isolated -o built-chrome && \
+    mv built-chrome/out/Release chrome-linux && \
+    zip -r /chrome-linux-${VERSION}.zip chrome-linux
 
 FROM scratch AS chromium
 
