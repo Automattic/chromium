@@ -10,12 +10,13 @@ all_versions := $(wildcard versions/*)
 build_versions := $(subst versions,built,$(all_versions))
 
 all: $(build_versions)
-	docker system prune -f
+	docker system prune -f --all
 
 built/%:
 	DOCKER_BUILDKIT=1 docker build --pull --build-arg VERSION=$(notdir $@) -t $(OWNER)/$(REPO):$(notdir $@) \
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo -t $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@))) .
 	docker push withinboredom/chromium:$(notdir $@)
+	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo docker push $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@)))
 	touch $@
 
 generate: versions.sh
