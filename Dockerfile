@@ -49,8 +49,8 @@ RUN autoninja -C out/Default chrome
 WORKDIR /chromium/src/out
 RUN mv Default chrome-linux && zip -r /chrome-linux-${VERSION}.zip chrome-linux
 
-FROM scratch AS chromium
+FROM ubuntu:latest AS chromium
 
 ARG VERSION=76.0.3809.100
 
-COPY --from=BuildEnv /chrome-linux-${VERSION}.zip /chrome-linux-${VERSION}
+COPY --from=BuildEnv /chrome-linux-${VERSION}.zip /chrome-linux-${VERSION}.zip
