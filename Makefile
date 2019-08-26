@@ -1,7 +1,7 @@
 .PHONY: all images generate clean distclean
 
 JQ := $(shell which jq || echo ./jq)
-OWNER := withinboredom
+OWNER := a8cdata
 REPO := chromium
 
 $(shell mkdir -p built)

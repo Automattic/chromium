@@ -5,7 +5,7 @@ Builds Chromium stable / beta /dev
 ## Usage
 
 ```bash
-docker create --name chromium withinboredom/chromium:76.0.3809.100 .
+docker create --name chromium a8cdata/chromium:76.0.3809.100 .
 docker cp chromium:/chrome-linux-76.0.3809.100.zip
 ```
 
