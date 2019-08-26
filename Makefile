@@ -1,4 +1,4 @@
-.PHONY: all generate
+.PHONY: all images generate clean distclean
 
 JQ := $(shell which jq || echo ./jq)
 OWNER := withinboredom
@@ -9,7 +9,11 @@ $(shell mkdir -p built)
 all_versions := $(wildcard versions/*)
 build_versions := $(subst versions,built,$(all_versions))
 
-all: $(build_versions)
+all: clean
+	$(MAKE) generate
+	$(MAKE) images
+
+images: $(build_versions)
 	docker system prune -f --all
 
 built/%:
@@ -24,10 +28,16 @@ generate: versions.sh
 	sh < ./versions.sh
 
 versions.sh:
-	curl https://omahaproxy.appspot.com/all.json | jq -r '.[] | select(.os == "linux") | .versions[] | "echo \"" + .channel + "\" > versions/" + .current_version' > versions.sh
+	curl https://omahaproxy.appspot.com/all.json | $(JQ) -r '.[] | select(.os == "linux") | .versions[] | "echo \"" + .channel + "\" > versions/" + .current_version' > versions.sh
 
 $(JQ):
 	wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
 	mv jq-linux64 $(JQ)
 	chmod +x $(JQ)
 	$(JQ) --help
+
+clean:
+	rm -f versions.sh
+
+distclean: clean
+	rm -rf built
