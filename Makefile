@@ -19,7 +19,7 @@ images: $(build_versions)
 built/%:
 	DOCKER_BUILDKIT=1 docker build --pull --build-arg VERSION=$(notdir $@) -t $(OWNER)/$(REPO):$(notdir $@) \
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo -t $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@))) .
-	docker push withinboredom/chromium:$(notdir $@)
+	docker push $(OWNER)/$(REPO):$(notdir $@)
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo docker push $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@)))
 	touch $@
 
