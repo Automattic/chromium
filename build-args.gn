@@ -1,5 +1,4 @@
 # Set build arguments here. See `gn buildargs`.
-use_jumbo_build = true
 symbol_level = 0
 blink_symbol_level = 0
 is_debug = false

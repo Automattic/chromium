@@ -32,7 +32,6 @@ ARG VERSION=76.0.3809.100
 
 WORKDIR /chromium/src
 RUN git checkout $VERSION
-COPY build-args.gn /build-args.gn
 
 # The following is separate run statements to take advantage of caching when single lines need to change during debugging
 RUN ./build/install-build-deps.sh --no-arm --no-prompt --no-syms --no-chromeos-fonts
@@ -46,6 +45,9 @@ ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin
 
 RUN gclient sync --with_branch_heads
 RUN gclient runhooks
+
+COPY build-args.gn /build-args.gn
+
 RUN --mount=type=tmpfs,target=/chromium/src/out/Default \
     gn gen out/Release && \
     cp /build-args.gn /chromium/src/out/Release/args.gn && \
