@@ -26,6 +26,7 @@ built/$(OWNER)/%:
 generate:
 	truncate -s 0 versions/*
 	./versions.sh
+	./delete-empty.php
 
 clean:
 	rm -f versions.sh
