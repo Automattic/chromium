@@ -43,7 +43,8 @@ RUN apt-get -o Acquire::Check-Valid-Until=false -y update && \
     ln -s /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java /usr/bin/java
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin
 
-RUN gclient sync --with_branch_heads
+#RUN gclient sync --help && exit 1
+RUN gclient sync --reset --with_branch_heads
 RUN gclient runhooks
 
 COPY build-args.gn /build-args.gn

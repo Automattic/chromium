@@ -5,6 +5,7 @@ OWNER := a8cdata
 REPO := chromium
 
 $(shell mkdir -p built)
+$(shell ./calculate-largest-version.php)
 
 all_versions := $(wildcard versions/*)
 build_versions := $(subst versions,built,$(all_versions))
@@ -23,12 +24,9 @@ built/%:
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo docker push $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@)))
 	touch $@
 
-generate: versions.sh
+generate:
 	truncate -s 0 versions/*
-	sh < ./versions.sh
-
-versions.sh:
-	curl https://omahaproxy.appspot.com/all.json | $(JQ) -r '.[] | select(.os == "linux") | .versions[] | "echo \"" + .channel + "\" > versions/" + .current_version' > versions.sh
+	./versions.sh
 
 $(JQ):
 	wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
