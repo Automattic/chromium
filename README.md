@@ -27,6 +27,7 @@ make -j
 
 - at least 24GB ram
 - decent amount of CPUs
+- ZFS as the docker storage driver (can configure with `sudo make zfs`)
 
 On a machine with 12 cores and 64gb of ram, it takes several hours to build from scratch.
 

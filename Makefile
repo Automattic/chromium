@@ -1,6 +1,5 @@
 .PHONY: all images generate clean distclean
 
-JQ := $(shell which jq || echo ./jq)
 OWNER := a8cdata
 REPO := chromium
 
@@ -28,14 +27,36 @@ generate:
 	truncate -s 0 versions/*
 	./versions.sh
 
-$(JQ):
-	wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-	mv jq-linux64 $(JQ)
-	chmod +x $(JQ)
-	$(JQ) --help
-
 clean:
 	rm -f versions.sh
 
 distclean: clean
 	rm -rf built
+
+/etc/docker/daemon.json:
+	echo '{ "storage-driver": "zfs" }' > /etc/docker/daemon.json
+
+# I'm being lazy -- this is mostly to document the process
+/zfsdevs/file1:
+	mkdir -p /zfsdevs
+	fallocate -l 25G /zfsdevs/file1
+
+/zfsdevs/file2:
+	mkdir -p /zfsdevs
+	fallocate -l 25G /zfsdevs/file2
+
+/zfsdevs/file3:
+	mkdir -p /zfsdevs
+	fallocate -l 25G /zfsdevs/file3
+
+/zfsdevs/file4:
+	mkdir -p /zfsdevs
+	fallocate -l 25G /zfsdevs/file4
+
+zfs: /zfsdevs/file1 /zfsdevs/file2 /zfsdevs/file3 /zfsdevs/file4 /etc/docker/daemon.json
+	zpool create -f zpool-docker /zfsdevs/file1 /zfsdevs/file2 /zfsdevs/file3 /zfsdevs/file4
+	systemctl stop docker
+	rm -rf /var/lib/docker
+	zfs create -o mountpoint=/var/lib/docker zpool-docker/docker
+	systemctl start docker
+	docker info
