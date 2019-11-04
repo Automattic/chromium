@@ -2,8 +2,7 @@
 <?php
 
 $active_builds = [];
-
-$all_versions = json_decode( file_get_contents( 'https://omahaproxy.appspot.com/all.json' ), true );
+$all_versions  = json_decode( file_get_contents( 'https://omahaproxy.appspot.com/all.json' ), true );
 
 foreach ( $all_versions as $oses ) {
 	if ( $oses['os'] === 'linux' ) {
@@ -19,7 +18,7 @@ foreach ( $all_versions as $oses ) {
 }
 unset( $all_versions );
 
-$versionsh   = "#!/bin/bash\n";
+$versionsh = "#!/bin/bash\n";
 
 foreach ( $active_builds as $build ) {
 	$versionsh .= <<<SH

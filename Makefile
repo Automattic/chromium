@@ -4,7 +4,7 @@ OWNER ?= a8cdata
 REPO := chromium
 
 $(shell mkdir -p built)
-$(shell ./calculate-largest-version.php)
+$(shell ./create-versions.php)
 
 all_versions := $(wildcard versions/*)
 build_versions := $(subst versions,built/$(OWNER),$(all_versions))
