@@ -14,7 +14,6 @@ all: clean
 	$(MAKE) images
 
 images: $(build_versions)
-	docker system prune -f --all
 
 built/%:
 	DOCKER_BUILDKIT=1 docker build --pull --build-arg VERSION=$(notdir $@) -t $(OWNER)/$(REPO):$(notdir $@) \
@@ -29,6 +28,7 @@ generate:
 
 clean:
 	rm -f versions.sh
+	docker system prune -f --all
 
 distclean: clean
 	rm -rf built
