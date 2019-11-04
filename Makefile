@@ -1,21 +1,22 @@
 .PHONY: all images generate clean distclean
 
-OWNER := a8cdata
+OWNER ?= a8cdata
 REPO := chromium
 
 $(shell mkdir -p built)
 $(shell ./calculate-largest-version.php)
 
 all_versions := $(wildcard versions/*)
-build_versions := $(subst versions,built,$(all_versions))
+build_versions := $(subst versions,built/$(OWNER),$(all_versions))
 
-all: clean
+all:
 	$(MAKE) generate
 	$(MAKE) images
 
 images: $(build_versions)
 
-built/%:
+built/$(OWNER)/%:
+	mkdir -p built/$(OWNER)
 	DOCKER_BUILDKIT=1 docker build --pull --build-arg VERSION=$(notdir $@) -t $(OWNER)/$(REPO):$(notdir $@) \
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo -t $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@))) .
 	docker push $(OWNER)/$(REPO):$(notdir $@)
