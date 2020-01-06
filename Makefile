@@ -1,4 +1,9 @@
-.PHONY: all images generate clean distclean
+SHELL := bash
+.ONESHELL:
+.SHELLFLAGS := -eu -o pipefail -c
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
 
 OWNER ?= a8cdata
 REPO := chromium
@@ -12,11 +17,13 @@ build_versions := $(subst versions,built/$(OWNER),$(all_versions))
 all:
 	$(MAKE) generate
 	$(MAKE) images
+.PHONY: all
 
 images: $(build_versions)
+.PHONY: images
 
 built/$(OWNER)/%:
-	mkdir -p built/$(OWNER)
+	mkdir -p $(@D)
 	DOCKER_BUILDKIT=1 docker build --pull --build-arg VERSION=$(notdir $@) -t $(OWNER)/$(REPO):$(notdir $@) \
 	$(shell [ -z "$(shell cat versions/$(notdir $@))" ] && echo "" || echo -t $(OWNER)/$(REPO):$(shell cat versions/$(notdir $@))) .
 	docker push $(OWNER)/$(REPO):$(notdir $@)
@@ -27,13 +34,16 @@ generate:
 	truncate -s 0 versions/*
 	./versions.sh
 	./delete-empty.php
+.PHONY: generate
 
 clean:
 	rm -f versions.sh
 	docker system prune -f --all
+.PHONY: clean
 
 distclean: clean
 	rm -rf built
+.PHONY: distclean
 
 /etc/docker/daemon.json:
 	echo '{ "storage-driver": "zfs" }' > /etc/docker/daemon.json
@@ -62,3 +72,4 @@ zfs: /zfsdevs/file1 /zfsdevs/file2 /zfsdevs/file3 /zfsdevs/file4 /etc/docker/dae
 	zfs create -o mountpoint=/var/lib/docker zpool-docker/docker
 	systemctl start docker
 	docker info
+.PHONY: zfs
