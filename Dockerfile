@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM debian:jessie AS BuildEnv
+FROM debian:9 AS BuildEnv
 
 RUN apt-get update -y
 
@@ -9,7 +9,8 @@ RUN apt-get install -y \
     git \
     lsb-base \
     lsb-release \
-    sudo
+    sudo \
+    python
 
 # Setup a proper build environment
 WORKDIR /
