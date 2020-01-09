@@ -37,9 +37,8 @@ RUN git checkout $VERSION
 # The following is separate run statements to take advantage of caching when single lines need to change during debugging
 RUN ./build/install-build-deps.sh --no-arm --no-prompt --no-syms --no-chromeos-fonts
 
-RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-RUN apt-get -o Acquire::Check-Valid-Until=false -y update && \
-    apt-get install -o Acquire::Check-Valid-Until=false -y -t jessie-backports ca-certificates-java openjdk-8-jdk && \
+RUN apt-get -y update && \
+    apt-get install -y ca-certificates-java openjdk-8-jdk && \
     rm -rf /usr/bin/java && \
     ln -s /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java /usr/bin/java
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin
